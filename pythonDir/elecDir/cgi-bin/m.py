@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+import re
 import cgi
 import time
 import rrdtool
 import datetime
-
 from datetime import timedelta
 
 def graphit( st, en ):
@@ -46,20 +46,43 @@ def graphit( st, en ):
                'GPRINT:kWh:AVERAGE:kWh %4.2lf\\t',
                'GPRINT:cost:AVERAGE:cost %3.2lf pounds\\n')
 
+def parseTime( t ):
+
+  pattern = "%Y-%m-%d %H:%M:%S"
+
+  if "now" == t:
+    ret = (datetime.datetime.now()).strftime(pattern)
+  else:
+    m = re.search( "([-]?\d+)([mhdw])", t )
+    if m:
+      digit = int(m.group(1))
+      period = m.group(2)
+      if "m" == period:
+        delta = digit * timedelta(minutes=1)
+      elif "h" == period:
+        delta = digit * timedelta(hours=1)
+      elif "d" == period:
+        delta = digit * timedelta(hours=24)
+      elif "w" == period:
+        delta = digit * timedelta(days=7)
+
+      ret = (datetime.datetime.now() + delta).strftime(pattern)
+    else:
+      ret = t
+
+  return int(time.mktime(time.strptime(ret, pattern)))
+
+
 print "Content-Type: text/html\n"
 print """<html><head/><body>"""
-
-onemin = timedelta(minutes=1)
-pattern = "%Y-%m-%d %H:%M:%S"
 
 form = cgi.FieldStorage()
 initST = form.getvalue('startTime')
 initET = form.getvalue('endTime')
 
 if not initST:
-  n = datetime.datetime.now()
-  initST = (n-(10*onemin)).strftime(pattern)
-  initET = n.strftime(pattern)
+  initST = "-1h"
+  initET = "now"
 
 print """
 <form action="m.py" method="GET">
@@ -68,8 +91,8 @@ print """
 <input type="submit" value="Submit"> 
 </form>""" %( initST, initET )
 
-st = int(time.mktime(time.strptime(initST, pattern)))
-et = int(time.mktime(time.strptime(initET, pattern)))
+st = parseTime( initST )
+et = parseTime( initET )
 
 if st and et:
   graphit(st,et)
