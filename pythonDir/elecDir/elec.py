@@ -46,7 +46,7 @@ def graphit():
 
   startDataTime = 1456612500
 
-  d = ({'last_1h' : [now - (55 * 60),            now],
+  d = ({'last_1h' : [now - (60 * 60),            now],
         'last_1d' : [now - (24 * 60 * 60),       now],
         'last_1w' : [now - (7  * 24 * 60 * 60),  now],
         'last_1m' : [now - (30 * 24 * 60 * 60),  now],
@@ -66,7 +66,7 @@ def graphit():
                  'DEF:watts=/var/elec/elec.rrd:joules:AVERAGE',
                  'CDEF:totaljoules=watts,%d,*' % (v[1]-v[0]),
                  'CDEF:kWh=totaljoules,3600000,/',
-                 'CDEF:cost=kWh,0.1,*',
+                 'CDEF:cost=kWh,0.115,*',
                  'CDEF:sh100=watts,1.00,*',
                  'CDEF:sh90=watts,0.90,*',
                  'CDEF:sh80=watts,0.80,*',
@@ -89,7 +89,7 @@ def graphit():
                  'AREA:sh10#65FF00:',
                  'VDEF:Average=watts,AVERAGE',
                  'HRULE:Average#9595FF:Average',
-                 'GPRINT:watts:AVERAGE:Avg Power %6.0lf Watts\\t',
+                 'GPRINT:watts:AVERAGE:%5.0lf Watts\\t',
                  'GPRINT:kWh:AVERAGE:kWh %4.2lf\\t',
                  'GPRINT:cost:AVERAGE:cost %3.2lf pounds\\n')
 

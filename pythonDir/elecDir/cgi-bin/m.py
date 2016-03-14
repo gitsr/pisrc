@@ -14,6 +14,7 @@ def graphit( st, en ):
                '--height', '240',
                '--start', str(st),
                '--end', str(et),
+               '--right-axis', '1:0',
                '--vertical-label', 'Watts',
                '--lower-limit', '0',
                'DEF:watts=/var/elec/elec.rrd:joules:AVERAGE',
@@ -42,7 +43,7 @@ def graphit( st, en ):
                'AREA:sh10#65FF00:',
                'VDEF:Average=watts,AVERAGE',
                'HRULE:Average#9595FF:Average',
-               'GPRINT:watts:AVERAGE:Avg Power %6.0lf Watts\\t',
+               'GPRINT:watts:AVERAGE:%5.0lf Watts\\t',
                'GPRINT:kWh:AVERAGE:kWh %4.2lf\\t',
                'GPRINT:cost:AVERAGE:cost %3.2lf pounds\\n')
 
@@ -90,6 +91,8 @@ print """
 <input name="endTime" value="%s">
 <input type="submit" value="Submit"> 
 </form>""" %( initST, initET )
+
+print """<p>Enter absolute "2016-03-14 06:00:00", or relative "-2h", "now" terms</p>"""
 
 st = parseTime( initST )
 et = parseTime( initET )
